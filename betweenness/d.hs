@@ -1,12 +1,13 @@
 import Control.Monad
 import Control.Monad.State
 
-import qualified Data.Map as Map
-import qualified Data.Set as Set
+import qualified Data.IntMap as Map
+import qualified Data.IntSet as Set
 
 import System.Environment
 import System.Exit
 
+import qualified IntMapDouble as IMD
 import SFGen
 
 import Debug.Trace
@@ -22,7 +23,7 @@ type Index = Int
 
 data G = G {
 	-- |Successors and predecessors for each vertex are sets of vertices.
-	  gAdjacency		:: Map.Map Index (Set.Set Index)
+	  gAdjacency		:: Map.IntMap Set.IntSet
 	}
 	deriving (Show)
 
@@ -41,11 +42,11 @@ edge a b = do
 		  gAdjacency = Map.insertWith Set.union a (Set.singleton b) $ gAdjacency g
 		}
 
-getCentrBatch :: Int -> GM (Map.Map Index Double)
+getCentrBatch :: Int -> GM (Map.IntMap Double)
 getCentrBatch batchSize = do
 	return $ Map.empty
 
-getCentr :: GM (Map.Map Index Double)
+getCentr :: GM (Map.IntMap Double)
 getCentr = do
 	adj <- liftM gAdjacency get
 	let vertices =
@@ -90,10 +91,10 @@ getCentr = do
 				w3 = Map.intersectionWith (*) (Map.intersectionWith (*) w2 sd1) p
 				u' = Map.unionWith (+) u $ Map.filter (/=0) w3
 
-mulmv :: Map.Map Index (Map.Map Index Double) -> Map.Map Index Double -> Map.Map Index Double
+mulmv :: Map.IntMap (Map.IntMap Double) -> Map.IntMap Double -> Map.IntMap Double
 mulmv m v = Map.filter (/=0) $ Map.map (\a -> Map.fold (+) 0 $ Map.intersectionWith (*) v a) m
 
-mulvm :: Map.Map Index Double -> Map.Map Index (Map.Map Index Double) -> Map.Map Index Double
+mulvm :: Map.IntMap Double -> Map.IntMap (Map.IntMap Double) -> Map.IntMap Double
 mulvm v m = Map.filter (/=0) $ Map.fold (Map.unionWith (+)) Map.empty $
 	Map.intersectionWith (\c r -> Map.map (*c) r) v m
 
