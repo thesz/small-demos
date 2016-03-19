@@ -1,0 +1,6 @@
+dimem - DSL for distributed memory computations
+===============================================
+
+Distributed memory computations are troublesome and hard to work with properly.
+
+using udeas from Legion/Regent, we will attempt to build something more or less giid and easy to use.
